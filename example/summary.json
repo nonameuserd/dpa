@@ -1,0 +1,45 @@
+{
+  "generated_at": "2026-08-08T11:44:17",
+  "inputs": {
+    "signups": "signups.csv",
+    "usage": "usage.csv",
+    "conversions": "conversions.csv",
+    "cluster_ip_prefix": 24,
+    "burst_window_minutes": 15,
+    "burst_min": 3
+  },
+  "totals": {
+    "signups": 30,
+    "accounts_with_usage": 30,
+    "total_credits_used": 601.17,
+    "converted": 3,
+    "orphan_usage_rows": 0
+  },
+  "clusters": {
+    "domain_cluster_groups": 1,
+    "ip_cluster_groups": 2,
+    "burst_groups": 2
+  },
+  "cohorts": {
+    "flagged": {
+      "accounts": 12,
+      "credits_granted": 120.0,
+      "credits_used": 576.0,
+      "credits_used_72h": 576.0,
+      "converted": 0
+    },
+    "clean": {
+      "accounts": 18,
+      "credits_granted": 180.0,
+      "credits_used": 25.17,
+      "credits_used_72h": 25.17,
+      "converted": 3
+    }
+  },
+  "dollar_figure": {
+    "credit_cost_usd": 0.002,
+    "flagged_cost_usd": 1.15,
+    "flagged_cost_72h_usd": 1.15,
+    "share_of_total_burn": 0.9581
+  }
+}

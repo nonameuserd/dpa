@@ -36,6 +36,18 @@ npx tsx farming-baseline.mts --signups signups.csv --usage usage.csv \
 
 The `summary.json` output — rounded aggregates and group counts, no identifiers — is the only thing worth sharing from the run.
 
+## Try it first
+
+The `example/` folder has a small synthetic dataset (30 signups: 12 farm accounts + 18 normal users, 3 conversions) — run it to see what the output looks like before touching real data:
+
+```bash
+cd example
+python3 ../farming-baseline.py --signups signups.csv --usage usage.csv \
+  --conversions conversions.csv --credit-cost-usd 0.002 --out summary.json
+```
+
+Expected output: 12 flagged accounts burning ~96% of credits with 0 conversions, 18 clean accounts with 3 conversions — `example/summary.json` is the reference result.
+
 ## Options
 
 | Flag | Default | Meaning |
