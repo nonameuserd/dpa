@@ -10,11 +10,11 @@ A free, read-only analysis that puts a dollar figure on how much of your free ti
 
 Three CSV exports from your own warehouse:
 
-| File | Columns | Notes |
-| --- | --- | --- |
-| `signups.csv` | `user_id, signed_up_at, email_domain, ip, credits_granted` | `ip`, `email_domain`, `credits_granted` optional. `user_id` must match `usage.csv`. |
-| `usage.csv` | `user_id, used_at, credits_used` | One row per metered event. Any numeric unit. |
-| `conversions.csv` (optional) | `user_id, converted_at` | Accounts that became paying customers. |
+| File                         | Columns                                                    | Notes                                                                               |
+| ---------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `signups.csv`                | `user_id, signed_up_at, email_domain, ip, credits_granted` | `ip`, `email_domain`, `credits_granted` optional. `user_id` must match `usage.csv`. |
+| `usage.csv`                  | `user_id, used_at, credits_used`                           | One row per metered event. Any numeric unit.                                        |
+| `conversions.csv` (optional) | `user_id, converted_at`                                    | Accounts that became paying customers.                                              |
 
 Timestamps: ISO (`2026-08-01T09:00:00`) or `YYYY-MM-DD HH:MM:SS`.
 
@@ -50,16 +50,16 @@ Expected output: 12 flagged accounts burning ~96% of credits with 0 conversions,
 
 ## Options
 
-| Flag | Default | Meaning |
-| --- | --- | --- |
-| `--credit-cost-usd` | 0 | Your cost per credit (blended infra cost or retail — pick one and say which) |
-| `--domain-cluster-min` | 3 | Accounts sharing an email domain to flag a cluster |
-| `--ip-cluster-min` | 3 | Accounts sharing an IP prefix to flag |
-| `--cluster-ip-prefix` | 24 | IPv4 prefix bits for clustering (/48 for IPv6) |
-| `--burst-window-minutes` | 15 | Signups this close together in a flagged group count as a burst |
-| `--burst-min` | 3 | Signups needed in a window for a burst |
-| `--ignore-domains` | common public domains | Comma-separated domains excluded from domain clustering |
-| `--out` | `summary.json` | Output path |
+| Flag                     | Default               | Meaning                                                                      |
+| ------------------------ | --------------------- | ---------------------------------------------------------------------------- |
+| `--credit-cost-usd`      | 0                     | Your cost per credit (blended infra cost or retail — pick one and say which) |
+| `--domain-cluster-min`   | 3                     | Accounts sharing an email domain to flag a cluster                           |
+| `--ip-cluster-min`       | 3                     | Accounts sharing an IP prefix to flag                                        |
+| `--cluster-ip-prefix`    | 24                    | IPv4 prefix bits for clustering (/48 for IPv6)                               |
+| `--burst-window-minutes` | 15                    | Signups this close together in a flagged group count as a burst              |
+| `--burst-min`            | 3                     | Signups needed in a window for a burst                                       |
+| `--ignore-domains`       | common public domains | Comma-separated domains excluded from domain clustering                      |
+| `--out`                  | `summary.json`        | Output path                                                                  |
 
 ## Verify the file you received
 
