@@ -84,4 +84,4 @@ The 72h credit-burn and the conversion contrast (flagged vs. clean cohorts) are 
 
 ## License
 
-Public domain (Unlicense). You can run, copy, modify, and audit it freely — that's the point.
+Business Source License 1.1 — free to run, audit, modify, and use for your own internal analysis (including production use on your own data). The only thing the license restricts is offering the scripts — modified or not — to third parties as a product, service, or hosted offering. The Licensed Work converts to Apache License 2.0 on 2030-08-08. Full text in [LICENSE](LICENSE).
