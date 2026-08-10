@@ -96,13 +96,15 @@ function parseCsv(text: string): string[][] {
 
 function loadCsv(path: string, required: string[]): Record<string, string>[] {
   const parsed = parseCsv(readFileSync(path, "utf8"));
-  if (parsed.length === 0) {
+  const headers = parsed[0];
+  if (!headers) {
     throw new Error(`${path}: empty file`);
   }
-  const headers = parsed[0];
   const missing = required.filter((c) => !headers.includes(c));
   if (missing.length > 0) {
-    throw new Error(`${path}: missing columns ${missing.join(", ")}; have ${headers.join(", ")}`);
+    throw new Error(
+      `${path}: missing columns ${missing.join(", ")}; have ${headers.join(", ")}`,
+    );
   }
   return parsed
     .slice(1)
@@ -114,6 +116,12 @@ function loadCsv(path: string, required: string[]): Record<string, string>[] {
       });
       return rec;
     });
+}
+
+function req(row: Record<string, string>, key: string): string {
+  const value = row[key];
+  if (value === undefined) throw new Error(`${key}: missing value in a data row`);
+  return value;
 }
 
 function parseTs(value: string): Date {
@@ -145,17 +153,13 @@ function ipPrefix(raw: string, bits: number): string | null {
     return `${parts.slice(0, 3).join(":")}::/48`;
   }
   const octets = s.split(".").map(Number);
-  if (
-    octets.length !== 4 ||
-    octets.some((o) => isNaN(o) || o < 0 || o > 255)
-  ) {
+  if (octets.length !== 4 || octets.some((o) => isNaN(o) || o < 0 || o > 255)) {
     return null;
   }
   const n = Math.min(bits, 32);
-  const mask = n === 0 ? 0 : ((0xffffffff << (32 - n)) >>> 0);
+  const mask = n === 0 ? 0 : (0xffffffff << (32 - n)) >>> 0;
   const int =
-    (((octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3]) >>>
-      0);
+    ((octets[0]! << 24) | (octets[1]! << 16) | (octets[2]! << 8) | octets[3]!) >>> 0;
   const net = (int & mask) >>> 0;
   return `${(net >>> 24) & 255}.${(net >>> 16) & 255}.${(net >>> 8) & 255}.${net & 255}/${n}`;
 }
@@ -164,10 +168,7 @@ function hasBurst(times: Date[], windowMs: number, k: number): boolean {
   const sorted = [...times].sort((a, b) => a.getTime() - b.getTime());
   let j = 0;
   for (let i = 0; i < sorted.length; i++) {
-    while (
-      j < sorted.length &&
-      sorted[j].getTime() - sorted[i].getTime() <= windowMs
-    ) {
+    while (j < sorted.length && sorted[j]!.getTime() - sorted[i]!.getTime() <= windowMs) {
       j++;
     }
     if (j - i >= k) return true;
@@ -185,10 +186,7 @@ function cohortStats(
   return {
     accounts: userIds.size,
     credits_granted: round2(
-      [...userIds].reduce(
-        (sum, uid) => sum + (byUser.get(uid)?.creditsGranted ?? 0),
-        0,
-      ),
+      [...userIds].reduce((sum, uid) => sum + (byUser.get(uid)?.creditsGranted ?? 0), 0),
     ),
     credits_used: round2(
       [...userIds].reduce((sum, uid) => sum + (creditsAll.get(uid) ?? 0), 0),
@@ -254,13 +252,13 @@ function main(): void {
   const conversions = values.conversions
     ? loadCsv(values.conversions, ["user_id", "converted_at"])
     : [];
-  const converted = new Set(conversions.map((r) => r["user_id"]));
+  const converted = new Set(conversions.map((r) => req(r, "user_id")));
 
   const byUser = new Map<string, User>();
   for (const r of signups) {
     const granted = parseFloat(r["credits_granted"] ?? "");
-    byUser.set(r["user_id"], {
-      signedUpAt: parseTs(r["signed_up_at"]),
+    byUser.set(req(r, "user_id"), {
+      signedUpAt: parseTs(req(r, "signed_up_at")),
       emailDomain: (r["email_domain"] ?? "").toLowerCase(),
       ip: r["ip"] ?? "",
       creditsGranted: isNaN(granted) ? 0 : granted,
@@ -272,11 +270,11 @@ function main(): void {
   const creditsAll = new Map<string, number>();
   let orphanUsageRows = 0;
   for (const r of usage) {
-    const amount = parseFloat(r["credits_used"]);
+    const amount = parseFloat(req(r, "credits_used"));
     if (isNaN(amount)) continue;
-    const ts = parseTs(r["used_at"]);
+    const ts = parseTs(req(r, "used_at"));
     totalCredits += amount;
-    const uid = r["user_id"];
+    const uid = req(r, "user_id");
     creditsAll.set(uid, (creditsAll.get(uid) ?? 0) + amount);
     const user = byUser.get(uid);
     if (!user) {
@@ -310,9 +308,7 @@ function main(): void {
   const domainClusters = new Map(
     [...domains].filter(([, us]) => us.size >= domainClusterMin),
   );
-  const ipClusters = new Map(
-    [...prefixes].filter(([, us]) => us.size >= ipClusterMin),
-  );
+  const ipClusters = new Map([...prefixes].filter(([, us]) => us.size >= ipClusterMin));
 
   const flagged = new Set<string>();
   for (const us of [...domainClusters.values(), ...ipClusters.values()]) {

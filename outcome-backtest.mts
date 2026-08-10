@@ -39,7 +39,6 @@ const REQUIRED_COLUMNS = [
   "decision_chitmark",
   "outcome",
 ] as const;
-const OUTCOMES = new Set(["abuse", "converted", "silent"]);
 const DECISIONS = new Set(["allow", "block"]);
 
 import { readFileSync, writeFileSync } from "node:fs";
@@ -141,8 +140,8 @@ function parseDatetime(value: string): Date | null {
 function loadEvents(path: string): EventRow[] {
   const text = readFileSync(path, "utf-8");
   const lines = text.split(/\r?\n/).filter((line) => line.trim() !== "");
-  if (lines.length === 0) fail("events.csv has no rows");
-  const header = lines[0].split(",");
+  const header = lines[0]?.split(",") ?? [];
+  if (lines.length === 0 || header.length === 0) fail("events.csv has no rows");
   for (const column of REQUIRED_COLUMNS) {
     if (!header.includes(column)) {
       fail(`events.csv is missing required column(s): ${column}`);
@@ -184,7 +183,10 @@ function buildEvent(
   };
 }
 
-function evaluate(events: Event[], decisionKey: "funnel_blind" | "chitmark"): PolicyResult {
+function evaluate(
+  events: Event[],
+  decisionKey: "funnel_blind" | "chitmark",
+): PolicyResult {
   let blocks = 0;
   let abuseBlocked = 0;
   let abuseBlockedUsd = 0;
@@ -209,9 +211,7 @@ function evaluate(events: Event[], decisionKey: "funnel_blind" | "chitmark"): Po
     }
     if (blocked) blocks += 1;
   }
-  const savedPerFalseBlock = falseBlocks
-    ? round2(abuseBlockedUsd / falseBlocks)
-    : null;
+  const savedPerFalseBlock = falseBlocks ? round2(abuseBlockedUsd / falseBlocks) : null;
   return {
     blocks,
     abuse_blocked: abuseBlocked,
@@ -243,9 +243,7 @@ function sortedStringify(value: unknown, indent = 0): string {
     if (value.length === 0) return "[]";
     return (
       "[\n" +
-      value
-        .map((item) => `${childPad}${sortedStringify(item, indent + 2)}`)
-        .join(",\n") +
+      value.map((item) => `${childPad}${sortedStringify(item, indent + 2)}`).join(",\n") +
       `\n${pad}]`
     );
   }
@@ -264,7 +262,7 @@ function sortedStringify(value: unknown, indent = 0): string {
       `\n${pad}}`
     );
   }
-  return JSON.stringify(value);
+  return JSON.stringify(value) ?? "null";
 }
 
 function renderMarkdown(
@@ -315,7 +313,8 @@ function renderMarkdown(
   let verdict: string;
   if (funnelPer !== null && tunedPer !== null) {
     verdict =
-      tuned.false_blocks < funnel.false_blocks && tuned.dollars_saved_usd >= funnel.dollars_saved_usd
+      tuned.false_blocks < funnel.false_blocks &&
+      tuned.dollars_saved_usd >= funnel.dollars_saved_usd
         ? "The outcome-tuned policy blocks the same abuse dollars with fewer false blocks of paying customers."
         : "The outcome-tuned policy did not improve on the current rules in this data — that is the honest finding, not a bug.";
   } else {
@@ -404,14 +403,9 @@ async function main(): Promise<void> {
       outcome_tuned: tuned,
     },
     outcome_tuned_advantage: {
-      false_blocks_removed: Math.max(
-        funnel.false_blocks - tuned.false_blocks,
-        0,
-      ),
+      false_blocks_removed: Math.max(funnel.false_blocks - tuned.false_blocks, 0),
       dollars_saved_per_false_block_delta_usd:
-        funnelPer !== null && tunedPer !== null
-          ? round2(tunedPer - funnelPer)
-          : null,
+        funnelPer !== null && tunedPer !== null ? round2(tunedPer - funnelPer) : null,
     },
     label_maturity_days: args.labelMaturityDays,
   };

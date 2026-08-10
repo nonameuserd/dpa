@@ -46,7 +46,7 @@ python3 ../farming-baseline.py --signups signups.csv --usage usage.csv \
   --conversions conversions.csv --credit-cost-usd 0.002 --out summary.json
 ```
 
-Expected output: 12 flagged accounts burning ~96% of credits with 0 conversions, 18 clean accounts with 3 conversions — `example/summary.json` is the reference result.
+Expected output: 12 flagged accounts burning ~96% of credits with 0 conversions, 18 clean accounts with 3 conversions. (The committed `example/summary.json` is the outcome-backtest reference — run the baseline against your own CSVs and review the printed report.)
 
 ## Options
 
@@ -71,9 +71,9 @@ sha256sum farming-baseline.py          # Linux
 ```
 
 - `farming-baseline.py` → `0deedbbef0c94009fab291a94f4cf74e4239b48d073ac9a3b6219f523a0e66f4`
-- `farming-baseline.mts` → `8d5dac7cd187f470eb5da6e403521ea9e5481c8367316f38c4614629dbe5df81`
+- `farming-baseline.mts` → `f6e26a91df84638bbf37a3ecce5c30c9c8aaaf3edb6d969a34caf53f4e290263`
 - `outcome-backtest.py` → `0b0bb67d090064b9e45a509825c8ea42cd150d3eb73a4e52280b823fe9ddc9d4`
-- `outcome-backtest.mts` → `7358a44759bb42e2eabecf7b04a3471cb84fefa04b2107718daa1f8b22bc4934`
+- `outcome-backtest.mts` → `652b309c682f836f12d360d0da50bd147728199544183efa79c8a60c1a15a19d`
 
 ## What it computes
 
