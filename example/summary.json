@@ -1,45 +1,37 @@
 {
-  "generated_at": "2026-08-08T11:44:17",
-  "inputs": {
-    "signups": "signups.csv",
-    "usage": "usage.csv",
-    "conversions": "conversions.csv",
-    "cluster_ip_prefix": 24,
-    "burst_window_minutes": 15,
-    "burst_min": 3
+  "abuse_events": 7,
+  "abuse_value_usd": 1630,
+  "converted_events": 6,
+  "dropped_immature": 0,
+  "events": 40,
+  "events_with_both_decisions": 40,
+  "generated_by": "chitmark outcome-backtest",
+  "good_value_usd": 900,
+  "label_maturity_days": 14,
+  "outcome_tuned_advantage": {
+    "dollars_saved_per_false_block_delta_usd": 880,
+    "false_blocks_removed": 2
   },
-  "totals": {
-    "signups": 30,
-    "accounts_with_usage": 30,
-    "total_credits_used": 601.17,
-    "converted": 3,
-    "orphan_usage_rows": 0
-  },
-  "clusters": {
-    "domain_cluster_groups": 1,
-    "ip_cluster_groups": 2,
-    "burst_groups": 2
-  },
-  "cohorts": {
-    "flagged": {
-      "accounts": 12,
-      "credits_granted": 120.0,
-      "credits_used": 576.0,
-      "credits_used_72h": 576.0,
-      "converted": 0
+  "policies": {
+    "funnel_blind": {
+      "abuse_blocked": 5,
+      "abuse_missed": 2,
+      "blocks": 8,
+      "dollars_lost_usd": 450,
+      "dollars_saved_per_false_block": 440,
+      "dollars_saved_usd": 1320,
+      "false_blocks": 3
     },
-    "clean": {
-      "accounts": 18,
-      "credits_granted": 180.0,
-      "credits_used": 25.17,
-      "credits_used_72h": 25.17,
-      "converted": 3
+    "outcome_tuned": {
+      "abuse_blocked": 5,
+      "abuse_missed": 2,
+      "blocks": 6,
+      "dollars_lost_usd": 150,
+      "dollars_saved_per_false_block": 1320,
+      "dollars_saved_usd": 1320,
+      "false_blocks": 1
     }
   },
-  "dollar_figure": {
-    "credit_cost_usd": 0.002,
-    "flagged_cost_usd": 1.15,
-    "flagged_cost_72h_usd": 1.15,
-    "share_of_total_burn": 0.9581
-  }
+  "schema_version": 1,
+  "silent_events": 27
 }

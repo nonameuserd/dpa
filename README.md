@@ -72,6 +72,8 @@ sha256sum farming-baseline.py          # Linux
 
 - `farming-baseline.py` → `0deedbbef0c94009fab291a94f4cf74e4239b48d073ac9a3b6219f523a0e66f4`
 - `farming-baseline.mts` → `8d5dac7cd187f470eb5da6e403521ea9e5481c8367316f38c4614629dbe5df81`
+- `outcome-backtest.py` → `0b0bb67d090064b9e45a509825c8ea42cd150d3eb73a4e52280b823fe9ddc9d4`
+- `outcome-backtest.mts` → `7358a44759bb42e2eabecf7b04a3471cb84fefa04b2107718daa1f8b22bc4934`
 
 ## What it computes
 
@@ -81,6 +83,31 @@ sha256sum farming-baseline.py          # Linux
 - **Dollar figure:** credits used by the flagged cohort × your per-credit cost, plus its share of total burn. Conservative by construction — it only counts accounts in clusters, never lone accounts.
 
 The 72h credit-burn and the conversion contrast (flagged vs. clean cohorts) are the numbers that separate farming cohorts from real users.
+
+## Outcome backtest — the follow-up comparison
+
+The baseline puts a dollar figure on the farm. The **outcome backtest** answers the next question: would block decisions tuned by your outcomes (credit burn, conversion, chargeback) beat your current funnel-blind rules? The metric is **dollars saved per false-block** — same abuse stopped, fewer paying customers blocked.
+
+One CSV, three new columns on the same event IDs:
+
+| Column                   | Values                           | Meaning                                         |
+| ------------------------ | -------------------------------- | ----------------------------------------------- |
+| `decision_funnel_blind`  | `allow` / `block`                | What your current rules decided                 |
+| `decision_chitmark`      | `allow` / `block`                | What outcome-tuned decisions would have decided |
+| `outcome`                | `abuse` / `converted` / `silent` | The label your feedback joined to the event     |
+| `credit_burn_usd` (opt.) | number                           | Credits burned × your cost basis                |
+| `chargeback_usd` (opt.)  | number                           | Chargeback value                                |
+| `converted_usd` (opt.)   | number                           | Revenue from a converted account                |
+
+```bash
+python3 outcome-backtest.py --events events.csv --out summary.json
+node outcome-backtest.mts --events events.csv --out summary.json   # Node >= 24
+```
+
+- `--label-maturity-days 14` (default): drops events signed up within the last 14 days — their outcome labels have not matured yet (burn shows up at 24-72h, conversions later). `0` disables.
+- `--false-block-cost-usd`: substitute a flat value for `converted_usd` if you don't export revenue.
+
+Try it first with `example/events.csv` — the reference result is `example/summary.json`. Both implementations produce **byte-identical** `summary.json` (verified against the shared fixture). Same guarantees as the baseline: offline, stdlib only, aggregates only.
 
 ## License
 
