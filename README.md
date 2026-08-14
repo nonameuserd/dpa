@@ -1,9 +1,9 @@
 # Chitmark farming-baseline analysis
 
-A free, read-only analysis that puts a dollar figure on how much of your free tier is being drained by AI-agent farming — fake signups spinning up credits and API keys. It runs on your machine, against your own data. Nothing leaves your system.
+A free, read-only analysis that puts a dollar figure on how much of your free tier is being drained by AI-agent farming: fake signups spinning up credits and API keys. It runs on your machine, against your own data. Nothing leaves your system.
 
-- **Zero dependencies, zero installs, zero network calls** — pure Python 3.9+ stdlib, or Node ≥ 18 built-ins
-- **~200 lines, fully readable** — your engineers can audit it in 10 minutes or skip it entirely and reproduce the math themselves
+- **Zero dependencies, zero installs, zero network calls**, pure Python 3.9+ stdlib, or Node ≥ 18 built-ins
+- **~200 lines, fully readable**, your engineers can audit it in 10 minutes or skip it entirely and reproduce the math themselves
 - **Public source:** [github.com/nonameuserd/dpa](https://github.com/nonameuserd/dpa) · Chitmark by Open Agent Ledger
 
 ## What you need
@@ -25,20 +25,20 @@ Timestamps: ISO (`2026-08-01T09:00:00`) or `YYYY-MM-DD HH:MM:SS`.
 python3 farming-baseline.py --signups signups.csv --usage usage.csv \
   --credit-cost-usd 0.002 --out summary.json
 
-# TypeScript — Node >= 24 (type stripping is built in, nothing to install)
+# TypeScript: Node >= 24 (type stripping is built in, nothing to install)
 node farming-baseline.mts --signups signups.csv --usage usage.csv \
   --credit-cost-usd 0.002 --out summary.json
 
-# TypeScript — any Node >= 18 (npx fetches tsx once; no project install)
+# TypeScript: any Node >= 18 (npx fetches tsx once; no project install)
 npx tsx farming-baseline.mts --signups signups.csv --usage usage.csv \
   --credit-cost-usd 0.002 --out summary.json
 ```
 
-The `summary.json` output — rounded aggregates and group counts, no identifiers — is the only thing worth sharing from the run.
+The `summary.json` output (rounded aggregates and group counts, no identifiers) is the only thing worth sharing from the run.
 
 ## Try it first
 
-The `example/` folder has a small synthetic dataset (30 signups: 12 farm accounts + 18 normal users, 3 conversions) — run it to see what the output looks like before touching real data:
+The `example/` folder has a small synthetic dataset (30 signups: 12 farm accounts and 18 normal users, 3 conversions). Run it to see what the output looks like before touching real data:
 
 ```bash
 cd example
@@ -46,13 +46,13 @@ python3 ../farming-baseline.py --signups signups.csv --usage usage.csv \
   --conversions conversions.csv --credit-cost-usd 0.002 --out summary.json
 ```
 
-Expected output: 12 flagged accounts burning ~96% of credits with 0 conversions, 18 clean accounts with 3 conversions. (The committed `example/summary.json` is the outcome-backtest reference — run the baseline against your own CSVs and review the printed report.)
+Expected output: 12 flagged accounts burning ~96% of credits with 0 conversions, 18 clean accounts with 3 conversions. (The committed `example/summary.json` is the outcome-backtest reference. Run the baseline against your own CSVs and review the printed report.)
 
 ## Options
 
 | Flag                     | Default               | Meaning                                                                      |
 | ------------------------ | --------------------- | ---------------------------------------------------------------------------- |
-| `--credit-cost-usd`      | 0                     | Your cost per credit (blended infra cost or retail — pick one and say which) |
+| `--credit-cost-usd`      | 0                     | Your cost per credit (blended infra cost or retail; pick one and say which) |
 | `--domain-cluster-min`   | 3                     | Accounts sharing an email domain to flag a cluster                           |
 | `--ip-cluster-min`       | 3                     | Accounts sharing an IP prefix to flag                                        |
 | `--cluster-ip-prefix`    | 24                    | IPv4 prefix bits for clustering (/48 for IPv6)                               |
@@ -63,7 +63,7 @@ Expected output: 12 flagged accounts burning ~96% of credits with 0 conversions,
 
 ## Verify the file you received
 
-The scripts work correctly with **no network access** — run them in a sandbox with the network unplugged if your security team wants proof. Compare checksums against this page and the GitHub repo:
+The scripts work correctly with **no network access**. Run them in a sandbox with the network unplugged if your security team wants proof. Compare checksums against this page and the GitHub repo:
 
 ```bash
 shasum -a 256 farming-baseline.py      # macOS
@@ -80,13 +80,13 @@ sha256sum farming-baseline.py          # Linux
 - **Totals:** signups, accounts with usage, total credits used, conversions.
 - **Clusters:** accounts sharing an email domain (public domains excluded), accounts sharing an IP prefix, and burst signup windows within a flagged group.
 - **Fast label:** credits burned within 72h of signup.
-- **Dollar figure:** credits used by the flagged cohort × your per-credit cost, plus its share of total burn. Conservative by construction — it only counts accounts in clusters, never lone accounts.
+- **Dollar figure:** credits used by the flagged cohort × your per-credit cost, plus its share of total burn. Conservative by construction, it only counts accounts in clusters, never lone accounts.
 
 The 72h credit-burn and the conversion contrast (flagged vs. clean cohorts) are the numbers that separate farming cohorts from real users.
 
-## Outcome backtest — the follow-up comparison
+## Outcome backtest: the follow-up comparison
 
-The baseline puts a dollar figure on the farm. The **outcome backtest** answers the next question: would block decisions tuned by your outcomes (credit burn, conversion, chargeback) beat your current funnel-blind rules? The metric is **dollars saved per false-block** — same abuse stopped, fewer paying customers blocked.
+The baseline puts a dollar figure on the farm. The **outcome backtest** answers the next question: would block decisions tuned by your outcomes (credit burn, conversion, chargeback) beat your current funnel-blind rules? The metric is **dollars saved per false-block**: same abuse stopped, fewer paying customers blocked.
 
 One CSV, three new columns on the same event IDs:
 
@@ -104,11 +104,11 @@ python3 outcome-backtest.py --events events.csv --out summary.json
 node outcome-backtest.mts --events events.csv --out summary.json   # Node >= 24
 ```
 
-- `--label-maturity-days 14` (default): drops events signed up within the last 14 days — their outcome labels have not matured yet (burn shows up at 24-72h, conversions later). `0` disables.
+- `--label-maturity-days 14` (default): drops events signed up within the last 14 days, their outcome labels have not matured yet (burn shows up at 24-72h, conversions later). `0` disables.
 - `--false-block-cost-usd`: substitute a flat value for `converted_usd` if you don't export revenue.
 
-Try it first with `example/events.csv` — the reference result is `example/summary.json`. Both implementations produce **byte-identical** `summary.json` (verified against the shared fixture). Same guarantees as the baseline: offline, stdlib only, aggregates only.
+Try it first with `example/events.csv`: the reference result is `example/summary.json`. Both implementations produce **byte-identical** `summary.json` (verified against the shared fixture). Same guarantees as the baseline: offline, stdlib only, aggregates only.
 
 ## License
 
-Business Source License 1.1 — free to run, audit, modify, and use for your own internal analysis (including production use on your own data). The only thing the license restricts is offering the scripts — modified or not — to third parties as a product, service, or hosted offering. The Licensed Work converts to Apache License 2.0 on 2030-08-08. Full text in [LICENSE](LICENSE).
+Business Source License 1.1: free to run, audit, modify, and use for your own internal analysis (including production use on your own data). The only thing the license restricts is offering the scripts (modified or not) to third parties as a product, service, or hosted offering. The Licensed Work converts to Apache License 2.0 on 2030-08-08. Full text in [LICENSE](LICENSE).
